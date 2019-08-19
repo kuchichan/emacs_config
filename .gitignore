@@ -1,0 +1,13 @@
+#all emacs temp files
+
+\#*
+*~
+recentf
+*.dat
+
+#package / autosave directories
+auto-save-list/
+elpa/
+
+
+
