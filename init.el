@@ -18,7 +18,10 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+	     '(("melpa" . "https://melpa.org/packages/")
+	       ("melpa-mirror" . "~/.emacs.d/mirror-elpa/melpa/")))
+
+
 
 (package-initialize)
 

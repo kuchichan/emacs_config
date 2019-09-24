@@ -76,11 +76,11 @@ Help for noobs like me
     ))
 #+END_SRC
 
-* Theme
+* Themes
 #+BEGIN_SRC emacs-lisp
 (use-package spacemacs-common
  :ensure spacemacs-theme
- :init (load-theme 'spacemacs-dark t))
+ :config (load-theme 'spacemacs-dark t))
 #+END_SRC
 * Python Development
 #+BEGIN_SRC emacs-lisp
