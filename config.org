@@ -19,7 +19,7 @@ Help for noobs like me
   :ensure t
   :config (which-key-mode))
 #+END_SRC
-* Org-bullets
+* Org-things
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
   :ensure t
@@ -107,4 +107,19 @@ Help for noobs like me
         (setq mac-command-modifier 'meta)
         (exec-path-from-shell-copy-envs '("PATH")))
 )
+#+END_SRC
+* Powerline
+#+BEGIN_SRC emacs-lisp
+(use-package powerline
+   :ensure t
+   :config (powerline-default-theme))
+#+END_SRC
+* Spotify
+#+BEGIN_SRC emacs-lisp 
+(use-package spotify
+:load-path "~/.emacs.d/spotify.el")
+
+(setq spotify-oauth2-client-secret "06a516b892704b5abb64baddf66bac13") 
+(setq spotify-oauth2-client-id "fe05658b86b14f10a5ca641a92e9431f")
+;;(setq spotify-transport 'connect)
 #+END_SRC
