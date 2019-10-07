@@ -6,6 +6,7 @@
  '(custom-safe-themes
    (quote
     ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+ '(global-spotify-remote-mode t)
  '(hl-todo-keyword-faces
    (quote
     (("TODO" . "#dc752f")
@@ -25,7 +26,7 @@
      ("\\?\\?\\?+" . "#dc752f"))))
  '(package-selected-packages
    (quote
-    (powerline htmlize magit spacemacs-theme elpy flycheck which-key use-package try org-bullets counsel auto-complete ace-window)))
+    (cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit pow powerline htmlize magit spacemacs-theme elpy flycheck which-key use-package try org-bullets counsel auto-complete ace-window)))
  '(pdf-view-midnight-colors (quote ("#b2b2b2" . "#292b2e"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -37,13 +38,13 @@
 ;; my-stuff
 (require 'package)
 (setq package-enable-at-startup nil)
-;; (add-to-list 'package-archives
-;; '("melpa" . "https://melpa.org/packages/"))
+(add-to-list 'package-archives
+'("melpa" . "https://melpa.org/packages/"))
 
-(setq package-check-signature nil)
-(setq package-archives
-      '(("melpa-mirror" . "~/.emacs.d/mirror-elpa/melpa/")
-	("gnu-mirror" . "~/.emacs.d/mirror-elpa/gnu/")))
+;; (setq package-check-signature nil)
+;; (setq package-archives
+      ;; '(("melpa-mirror" . "~/.emacs.d/mirror-elpa/melpa/")
+	;; ("gnu-mirror" . "~/.emacs.d/mirror-elpa/gnu/")))
 
 
 (package-initialize)
