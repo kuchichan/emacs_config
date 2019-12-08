@@ -5,7 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+    ("06f0b439b62164c6f8f84fdda32b62fb50b6d00e8b01c2208e55543a6337433a" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" "1b8d67b43ff1723960eb5e0cba512a2c7a2ad544ddb2533a90101fd1852b426e" "174502267725776b47bdd2d220f035cae2c00c818765b138fea376b2cdc15eb6" "669e02142a56f63861288cc585bee81643ded48a19e36bfdf02b66d745bcc626" "bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
  '(global-spotify-remote-mode t)
  '(hl-todo-keyword-faces
    (quote
@@ -26,7 +26,7 @@
      ("\\?\\?\\?+" . "#dc752f"))))
  '(package-selected-packages
    (quote
-    (cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit pow powerline htmlize magit spacemacs-theme elpy flycheck which-key use-package try org-bullets counsel auto-complete ace-window)))
+    (lsp-ui company-lsp go-autocomplete go-mode cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit pow powerline htmlize magit spacemacs-theme elpy flycheck which-key use-package try org-bullets counsel auto-complete ace-window)))
  '(pdf-view-midnight-colors (quote ("#b2b2b2" . "#292b2e"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

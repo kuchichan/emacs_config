@@ -12,6 +12,11 @@
 (use-package try
   :ensure t)
 #+END_SRC
+* Projectile
+#+BEGIN_SRC emacs-lisp
+(use-package projectile
+ :ensure t) 
+#+END_SRC
 * Which-key Package
 Help for noobs like me
 #+BEGIN_SRC emacs-lisp
@@ -67,6 +72,10 @@ Help for noobs like me
 #+END_SRC
 * Auto-complete
 #+BEGIN_SRC emacs-lisp
+(defun auto-complete-for-go ()
+(auto-complete-mode 1))
+ (add-hook 'go-mode-hook 'auto-complete-for-go)
+
 (use-package auto-complete
   :ensure t
   :init
@@ -74,23 +83,48 @@ Help for noobs like me
     (ac-config-default)
     (global-auto-complete-mode t)
     ))
-#+END_SRC
+(use-package go-autocomplete
+  :ensure t
+)
+(with-eval-after-load 'go-mode
+   (require 'go-autocomplete))
 
+#+END_SRC
+* Language server for python
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :config
+  (require 'lsp-clients)
+  (add-hook 'python-mode-hook 'lsp)
+  ;; get lsp-python-enable defined
+  ;; NB: use either projectile-project-root or ffip-get-project-root-directory
+  ;;     or any other function that can be used to find the root directory of a project
+  (defun lsp-set-cfg ()
+    (let ((lsp-cfg `(:pyls (:configurationSources ("flake8")))))
+      ;; TODO: check lsp--cur-workspace here to decide per server / project
+      (lsp--set-configuration lsp-cfg)))
+
+)
+(use-package company-lsp
+ :ensure t)
+(use-package lsp-ui
+ :ensure t)
+#+END_SRC
 * Themes
 #+BEGIN_SRC emacs-lisp
-(use-package spacemacs-common
- :ensure spacemacs-theme
- :config (load-theme 'spacemacs-dark t))
+(use-package color-theme-sanityinc-tomorrow
+ :ensure color-theme-sanityinc-tomorrow
+ :config (load-theme 'sanityinc-tomorrow-night t))
 #+END_SRC
-* Python Development
+* Python Development (deprecated)
 #+BEGIN_SRC emacs-lisp
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode 1))
-(use-package elpy
-  :ensure t
-  :config 
-  (elpy-enable))
+  (use-package flycheck
+    :ensure t
+    :init (global-flycheck-mode 1))
+  (use-package elpy
+    :ensure t
+    :config 
+    (elpy-enable))
 #+END_SRC
 * Clojure Development
 #+BEGIN_SRC emacs-lisp
@@ -177,6 +211,13 @@ Help for noobs like me
        (define-key clojure-mode-map (kbd "C-M-r") 'cider-refresh)
        (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
        (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
+#+END_SRC
+* Go development
+#+BEGIN_SRC emacs-lisp
+  (use-package go-mode
+    :ensure t
+    :hook ((before-save-hook . gofmt-before-save))
+    )
 #+END_SRC
 * Magit
 #+BEGIN_SRC emacs-lisp
