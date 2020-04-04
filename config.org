@@ -17,8 +17,6 @@
 (use-package projectile
  :ensure t) 
 #+END_SRC
-* Which-key Package
-Help for noobs like me
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
   :ensure t
@@ -29,6 +27,13 @@ Help for noobs like me
 (use-package org-bullets
   :ensure t
   :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+#+END_SRC
+** TODO_TWEAKS
+   Aditional keyword for progress
+#+BEGIN_SRC emacs-lisp
+(setq org-todo-keywords
+  '((sequence "TODO" "IN PROGRESS" "|" "DONE")))
+(setq org-log-done 'time)
 #+END_SRC
 * Windows-package
 #+BEGIN_SRC emacs-lisp
@@ -92,39 +97,55 @@ Help for noobs like me
 #+END_SRC
 * Language server for python
 #+BEGIN_SRC emacs-lisp
-(use-package lsp-mode
-  :config
-  (require 'lsp-clients)
-  (add-hook 'python-mode-hook 'lsp)
-  ;; get lsp-python-enable defined
-  ;; NB: use either projectile-project-root or ffip-get-project-root-directory
-  ;;     or any other function that can be used to find the root directory of a project
-  (defun lsp-set-cfg ()
-    (let ((lsp-cfg `(:pyls (:configurationSources ("flake8")))))
-      ;; TODO: check lsp--cur-workspace here to decide per server / project
-      (lsp--set-configuration lsp-cfg)))
+  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+  (setq lsp-keymap-prefix "s-l")
 
-)
-(use-package company-lsp
- :ensure t)
-(use-package lsp-ui
- :ensure t)
+  (use-package lsp-mode
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	   (python-mode . lsp)
+	   ;; if you want which-key integration
+	   (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp)
+
+  (use-package lsp-ui :commands lsp-ui-mode)
+  (use-package company-lsp :commands company-lsp)
+  ;; ivy-user
+  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+
+  ;; optionally if you want to use debugger
+  ;; (require 'dap-lldb)
+  ;; (require 'dap-python)
+
+  (use-package dap-mode
+    :config
+    (dap-mode 1)
+    (dap-ui-mode 1)
+  )
+  (with-eval-after-load 'lsp-mode
+    (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+  (setq company-minimum-prefix-length 1
+	company-idle-delay 0.0) ;; default is 0.2
 #+END_SRC
 * Themes
 #+BEGIN_SRC emacs-lisp
 (use-package color-theme-sanityinc-tomorrow
- :ensure color-theme-sanityinc-tomorrow
- :config (load-theme 'sanityinc-tomorrow-night t))
+   :ensure color-theme-sanityinc-tomorrow
+   :config (load-theme 'sanityinc-tomorrow-night t))
+
+  ;; (use-package sublime-themes
+  ;;  :ensure sublime-themes
+  ;;  :config (load-theme 'granger t)) 
 #+END_SRC
 * Python Development (deprecated)
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :ensure t
-    :init (global-flycheck-mode 1))
-  (use-package elpy
-    :ensure t
-    :config 
-    (elpy-enable))
+  ;; (use-package flycheck
+  ;;   :ensure t
+  ;;   :init (global-flycheck-mode 1))
+  ;; (use-package elpy
+  ;;   :ensure t
+  ;;   :config 
+  ;;   (elpy-enable))
 #+END_SRC
 * Clojure Development
 #+BEGIN_SRC emacs-lisp
@@ -249,4 +270,20 @@ Help for noobs like me
 (setq spotify-oauth2-client-secret "06a516b892704b5abb64baddf66bac13") 
 (setq spotify-oauth2-client-id "fe05658b86b14f10a5ca641a92e9431f")
 ;;(setq spotify-transport 'connect)
+#+END_SRC
+* Embrace
+#+BEGIN_SRC emacs-lisp
+(use-package embrace
+   :ensure t
+   :config (global-set-key (kbd "C-,") #'embrace-commander))
+#+END_SRC
+
+* NYAN !!!!
+#+BEGIN_SRC emacs-lisp
+(use-package nyan-mode
+  :ensure t
+  :config (nyan-mode)
+)
+(nyan-start-animation)
+(nyan-toggle-wavy-trail)
 #+END_SRC
