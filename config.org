@@ -51,10 +51,6 @@
 #+END_SRC
 * Navigating & searching
 #+BEGIN_SRC emacs-lisp
-;; (setq indo-enable-flex-matching)
-;; (setq ido-everywhere t)
-;; (ido-mode 1)
-
 (use-package counsel
 :ensure t
 )
@@ -77,22 +73,22 @@
 #+END_SRC
 * Auto-complete
 #+BEGIN_SRC emacs-lisp
-(defun auto-complete-for-go ()
-(auto-complete-mode 1))
- (add-hook 'go-mode-hook 'auto-complete-for-go)
+  ;; (defun auto-complete-for-go ()
+  ;; (auto-complete-mode 1))
+  ;;  (add-hook 'go-mode-hook 'auto-complete-for-go)
 
-(use-package auto-complete
-  :ensure t
-  :init
-  (progn
-    (ac-config-default)
-    (global-auto-complete-mode t)
-    ))
-(use-package go-autocomplete
-  :ensure t
-)
-(with-eval-after-load 'go-mode
-   (require 'go-autocomplete))
+  ;; (use-package auto-complete
+  ;;   :ensure t
+  ;;   :init
+  ;;   (progn
+  ;;     (ac-config-default)
+  ;;     (global-auto-complete-mode t)
+  ;;     ))
+  ;; (use-package go-autocomplete
+  ;;   :ensure t
+  ;; )
+  ;; (with-eval-after-load 'go-mode
+  ;;    (require 'go-autocomplete))
 
 #+END_SRC
 * Language server for python
@@ -103,7 +99,7 @@
   (use-package lsp-mode
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	   (python-mode . lsp)
-	   ;; if you want which-key integration
+	   (js-mode . lsp)
 	   (lsp-mode . lsp-enable-which-key-integration))
     :commands lsp)
 
@@ -122,20 +118,32 @@
     (dap-mode 1)
     (dap-ui-mode 1)
   )
+  (use-package ccls
+  :ensure t
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+	 (lambda () (require 'ccls) (lsp))))
+
+  (setq ccls-executable "/snap/bin/ccls")
   (with-eval-after-load 'lsp-mode
     (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
   (setq company-minimum-prefix-length 1
 	company-idle-delay 0.0) ;; default is 0.2
+  (setq gc-cons-treshold 100000000)
+  (setq read-process-output-max (* 1024 1024))
+  (setq ccls-sem-highlight-method 'font-lock)
 #+END_SRC
 * Themes
 #+BEGIN_SRC emacs-lisp
-(use-package color-theme-sanityinc-tomorrow
-   :ensure color-theme-sanityinc-tomorrow
-   :config (load-theme 'sanityinc-tomorrow-night t))
+  (use-package color-theme-sanityinc-tomorrow
+     :ensure color-theme-sanityinc-tomorrow
+     :config (load-theme 'sanityinc-tomorrow-eighties)
+  )
 
-  ;; (use-package sublime-themes
-  ;;  :ensure sublime-themes
-  ;;  :config (load-theme 'granger t)) 
+  ;; (load-theme 'leuven)
+    ;; (use-package sublime-themes
+    ;;  :ensure sublime-themes
+    ;;  :config (load-theme 'granger t)) 
 #+END_SRC
 * Python Development (deprecated)
 #+BEGIN_SRC emacs-lisp
@@ -262,15 +270,6 @@
    :ensure t
    :config (powerline-default-theme))
 #+END_SRC
-* Spotify
-#+BEGIN_SRC emacs-lisp 
-(use-package spotify
-:load-path "~/.emacs.d/spotify.el")
-
-(setq spotify-oauth2-client-secret "06a516b892704b5abb64baddf66bac13") 
-(setq spotify-oauth2-client-id "fe05658b86b14f10a5ca641a92e9431f")
-;;(setq spotify-transport 'connect)
-#+END_SRC
 * Embrace
 #+BEGIN_SRC emacs-lisp
 (use-package embrace
@@ -284,6 +283,4 @@
   :ensure t
   :config (nyan-mode)
 )
-(nyan-start-animation)
-(nyan-toggle-wavy-trail)
 #+END_SRC
