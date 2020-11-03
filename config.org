@@ -1,3 +1,4 @@
+
 #+STARTIP: overview
 
 * Interface Tweaks
@@ -15,7 +16,12 @@
 * Projectile
 #+BEGIN_SRC emacs-lisp
 (use-package projectile
- :ensure t) 
+ :ensure t
+ :init (setq projectile-project-search-path '("~/code"))
+ :config (setq projectile-completion-system 'ivy)
+ :bind (
+ ("C-c p" . projectile-command-map)))
+
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
@@ -72,66 +78,80 @@
 * Language servers
 #+BEGIN_SRC emacs-lisp
 
-  (use-package lsp-python-ms
-  :ensure t
-  :init (setq lsp-python-ms-auto-install-server t)
-  :hook (python-mode . (lambda ()
-                          (require 'lsp-python-ms)
-                          (lsp))))  ; or lsp-deferred
-  (use-package lsp-mode
-    :hook ((js-mode . lsp)
-	   (lsp-mode . lsp-enable-which-key-integration))
-    :custom (lsp-keymap-prefix "s-l")
-    :commands lsp
-    :config (with-eval-after-load 'lsp-mode
-	      (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-    )
+   (use-package lsp-python-ms
+   :ensure t
+   :init (setq lsp-python-ms-auto-install-server t)
+   :hook (python-mode . (lambda ()
+			   (require 'lsp-python-ms)
+			   (lsp)))
+			   )  ; or lsp-deferred
+   (use-package lsp-mode
+     :hook ((js-mode . lsp)
+	    (lsp-mode . lsp-enable-which-key-integration))
+     :custom (lsp-keymap-prefix "s-l")
+     :commands lsp
+     :config (with-eval-after-load 'lsp-mode
+	       (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+     )
 
-  (use-package lsp-ui :commands lsp-ui-mode)
-  (use-package company-lsp 
-    :commands company-lsp
-    :custom ((company-minimum-prefix-length 1)
-	     (company-idle-delay 0.0))) ;; default is 0.2
-    ;; ivy-user
-  (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-  (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+   (use-package lsp-ui :commands lsp-ui-mode)
+   (use-package company-lsp 
+     :commands company-lsp
+     :custom ((company-minimum-prefix-length 1)
+	      (company-idle-delay 0.0))) ;; default is 0.2
+     ;; ivy-user
+   (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+   (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
-  ;; optionally if you want to use debugger
-  ;; (require 'dap-lldb)
-  ;; (require 'dap-python)
+   ;; optionally if you want to use debugger
+   ;; (require 'dap-lldb)
+   ;; (require 'dap-python)
 
-  (use-package dap-mode
-    :ensure t
-    :config
-    (dap-mode 1)
-    (dap-ui-mode 1))
+   (use-package dap-mode
+     :ensure t
+     :config
+     (dap-mode 1)
+     (dap-ui-mode 1))
 
   (use-package ccls
-    :ensure t
-    :hook ((c-mode c++-mode objc-mode cuda-mode) .
-	   (lambda () (require 'ccls) (lsp)))
-    :custom (
-	     (ccls-executable "/snap/bin/ccls")
-	     (ccls-sem-highlight-method 'font-lock)))
+   :ensure t
+   :hook ((c-mode c++-mode objc-mode cuda-mode) .
+   (lambda () (require 'ccls) (lsp)))
+       :custom (
+       (ccls-executable "/usr/local/bin/ccls")
+       (ccls-initialization-options
+        '(:clang (:extraArgs ["-isystem/Library/Developer/CommandLineTools/usr/include/c++/v1"
+                              "-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
+                              "-isystem/Library/Developer/CommandLineTools/usr/include"
+                              "-isystem/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include"
+			      "-isystem/usr/local/include"
+			      "-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"]
+                  :resourceDir "/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3")))
+		  ))
 
-  (use-package gcmh
-    :ensure t
-    :config (gcmh-mode 1))
+   (use-package
+     gcmh
+     :ensure t
+     :config (gcmh-mode 1)
+   )
 
-  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-  (setq read-process-output-max (* 1024 1024))
+   (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+   (setq read-process-output-max (* 1024 1024))
+   (setq gcmh-high-cons-threshold 100000000)
+   
+   (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
+    
 #+END_SRC
 * Themes
 #+BEGIN_SRC emacs-lisp
   (use-package color-theme-sanityinc-tomorrow
      :ensure color-theme-sanityinc-tomorrow
-     :config (load-theme 'sanityinc-tomorrow-eighties t)
+     :config (load-theme 'sanityinc-tomorrow-eighties)
   )
 
-  ;; (load-theme 'leuven)
-    ;; (use-package sublime-themes
-    ;;  :ensure sublime-themes
-    ;;  :config (load-theme 'granger t)) 
+  (use-package tao-theme
+     :ensure tao-theme
+  )
 #+END_SRC
 * Python Development 
 #+BEGIN_SRC emacs-lisp
@@ -227,6 +247,14 @@
        (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
        (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
 #+END_SRC
+* Cpp Development
+#+BEGIN_SRC emacs-lisp
+(use-package
+ clang-format
+ :ensure t
+ :bind (("C-M-<tab>" . clang-format-buffer))
+)
+#+END_SRC
 * Go development
 #+BEGIN_SRC emacs-lisp
   ;; (use-package go-mode
@@ -247,6 +275,7 @@
              :ensure t
              :init (exec-path-from-shell-initialize))
         (setq mac-command-modifier 'meta)
+	(setq mac-right-option-modifier 'none)
         (exec-path-from-shell-copy-envs '("PATH")))
 )
 #+END_SRC
@@ -271,5 +300,9 @@
 )
 (use-package smartparens
   :ensure t
+  :hook ((python-mode . smartparens-mode)
+         (c++-mode . smartparens-mode))
+
 )
 #+END_SRC
+
