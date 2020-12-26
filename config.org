@@ -104,8 +104,8 @@
    (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
 
    ;; optionally if you want to use debugger
-   ;; (require 'dap-lldb)
-   ;; (require 'dap-python)
+   (require 'dap-lldb)
+   (require 'dap-python)
 
    (use-package dap-mode
      :ensure t
@@ -292,17 +292,18 @@
   :config (nyan-mode)
 )
 #+END_SRC
-* Wrap region & smartparens
-#+BEGIN_SRC emacs-lisp
-(use-package wrap-region
-  :ensure t
-  :config (wrap-region-mode t)
-)
-(use-package smartparens
-  :ensure t
-  :hook ((python-mode . smartparens-mode)
-         (c++-mode . smartparens-mode))
+* Evil mode
+ #+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'evil)
+  (package-install 'evil))
 
-)
-#+END_SRC
+;; Enable Evil
+(require 'evil)
+(evil-mode 1)
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+ #+END_SRC
 
