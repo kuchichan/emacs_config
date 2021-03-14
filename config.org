@@ -1,9 +1,63 @@
 
 #+STARTIP: overview
+* Use package
+#+BEGIN_SRC emacs-lisp
+(eval-and-compile
+  (setq use-package-always-ensure nil)
+  (setq use-package-always-defer nil)
+  (setq use-package-always-demand nil)
+  (setq use-package-expand-minimally nil)
+  (setq use-package-enable-imenu-support t)
+  (setq use-package-compute-statistics nil)
+  ;; The following is VERY IMPORTANT.  Write hooks using their real name
+  ;; instead of a shorter version: after-init ==> `after-init-hook'.
+  ;;
+  ;; This is to empower help commands with their contextual awareness,
+  ;; such as `describe-symbol'.
+  (setq use-package-hook-name-suffix nil))
 
+#+END_SRC
+* Company
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :ensure t
+  :defer t
+  :diminish
+  :defines (company-dabbrev-other-buffers
+	    company-dabbrev-code-other-buffers
+	    company-dabbrev-downcase
+	    company-dabbrev-ignore-case)
+  :config
+  (setq company-dabbrev-other-buffers t
+        company-dabbrev-code-other-buffers t
+
+        ;; M-<num> to select an option according to its number.
+        company-show-numbers t
+
+        ;; Only 2 letters required for completion to activate.
+        company-minimum-prefix-length 3
+
+        ;; Do not downcase completions by default.
+        company-dabbrev-downcase nil
+
+        ;; Even if I write something with the wrong case,
+        ;; provide the correct casing.
+	
+        company-dabbrev-ignore-case t
+
+        ;; Don't way before completion.
+        company-idle-delay 0
+
+	;; No company-mode in shell & eshell
+	company-global-modes '(not eshell-mode shell-mode))
+  :hook ((text-mode-hook . company-mode)
+         (prog-mode-hook . company-mode)))
+
+#+END_SRC
 * Interface Tweaks
 #+BEGIN_SRC emacs-lisp 
 (setq inhibit-startup-message t)
+(set-face-attribute 'default nil :font "Monaco")
 (tool-bar-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-linum-mode t)
@@ -13,26 +67,44 @@
 (use-package try
   :ensure t)
 #+END_SRC
-* Projectile
+* Flycheck + Spellcheck
 #+BEGIN_SRC emacs-lisp
-(use-package projectile
- :ensure t
- :init (setq projectile-project-search-path '("~/code"))
- :config (setq projectile-completion-system 'ivy)
- :bind (
- ("C-c p" . projectile-command-map)))
-
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-(use-package which-key
+(use-package flycheck
   :ensure t
-  :config (which-key-mode))
+  :defer t
+  :config
+  (setq flycheck-check-syntax-automatically '(mode-enabled save)) ; Check on save instead of running constantly
+  :hook ((prog-mode-hook text-mode-hook) . flycheck-mode))
+#+END_SRC
+* Projectile & treemacs
+#+BEGIN_SRC emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (setq treemacs-width 24)
+  :bind ("C-c t" . treemacs))
+
+(use-package projectile
+  :ensure t
+  :defer t
+  :init (setq projectile-project-search-path '("~/code"))
+  :config (setq projectile-completion-system 'ivy)
+  :bind ("M-p" . projectile-mode)
+  (:map projectile-mode-map 
+        ("C-c p" . projectile-command-map)))
+  
+(use-package treemacs-projectile
+  :ensure t
+  :after treemacs projectile
+  :defer t)
 #+END_SRC
 * Org-things
 #+BEGIN_SRC emacs-lisp
 (use-package org-bullets
   :ensure t
-  :hook (org-mode . org-bullets-mode))
+  :defer nil
+  :hook (org-mode-hook . org-bullets-mode))
 #+END_SRC
 ** TODO_TWEAKS
    Aditional keyword for progress
@@ -57,111 +129,130 @@
 #+END_SRC
 * Navigating & searching
 #+BEGIN_SRC emacs-lisp
-(use-package counsel
-:ensure t
-)
+  (use-package counsel
+    :ensure t)
 
-(use-package swiper
-  :ensure try
-  :bind (("C-s" . swiper)
-	 ("C-r" . swiper)
-	 ("C-c C-r" . ivy-resume)
-	 ("M-x" . counsel-M-x)
-	 ("C-x C-f" . counsel-find-file))
-  :config (ivy-mode 1)
-  :bind ("C-r" . counsel-expression-history)
-  :custom (
-  (ivy-use-virtual-buffers t)
-  (ivy-display-style 'fancy))
-)
+  (use-package swiper
+    :ensure try
+    :bind (("C-s" . swiper)
+           ("C-r" . swiper)
+	   ("C-c C-r" . ivy-resume)
+	   ("M-x" . counsel-M-x)
+	   ("C-x C-f" . counsel-find-file))
+    :config (ivy-mode 1)
+    :bind ("C-r" . counsel-expression-history)
+    :custom ((ivy-use-virtual-buffers t)
+             (ivy-display-style 'fancy)))
+	     
+  (use-package which-key
+    :ensure t
+    :config (which-key-mode))
 #+END_SRC
-* Language servers
+* Performance
 #+BEGIN_SRC emacs-lisp
-
-   (use-package lsp-python-ms
-   :ensure t
-   :init (setq lsp-python-ms-auto-install-server t)
-   :hook (python-mode . (lambda ()
-			   (require 'lsp-python-ms)
-			   (lsp)))
-			   )  ; or lsp-deferred
+   (use-package gcmh
+     :ensure t
+     :defer nil
+     :config 
+     (setq gcmh-mode 1
+           gcmh-idle-delay 5
+	   gcmh-high-cons-threshold (* 16 1024 1024)))
+#+END_SRC
+ 
+* Language server
+#+BEGIN_SRC emacs-lisp
    (use-package lsp-mode
-     :hook ((js-mode . lsp)
-	    (lsp-mode . lsp-enable-which-key-integration))
+     :ensure t
+     :defer t
+     :init (setq lsp-keymap-prefix "C-c l")
+     :hook ((js2-mode-hook . lsp-deferred)
+            (python-mode-hook . lsp-deferred)
+	    (c++-mode-hook . lsp-deferred)
+	    (lsp-mode-hook . lsp-enable-which-key-integration))
      :custom (lsp-keymap-prefix "s-l")
-     :commands lsp
-     :config (with-eval-after-load 'lsp-mode
-	       (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-     )
+     :commands (lsp lsp-deferred)
+     :bind (:map lsp-mode-map
+                 ("M-<RET>" . lsp-execute-code-action))
+     :config 
+     (setq lsp-keep-workspace-alive nil
+           lsp-auto-guess-root t)
+     (setq read-process-output-max (* 1024 1024)))
 
-   (use-package lsp-ui :commands lsp-ui-mode)
+   (use-package lsp-ui
+     :ensure t
+     :defer t
+     :config 
+     (setq lsp-ui-sideline-enable nil
+           lsp-ui-doc-delay 2)
+     :hook (lsp-mode-hook . lsp-ui-mode)
+     :bind (:map lsp-ui-mode-map
+                 ("C-c i" . lsp-ui-imenu)))
+
    (use-package company-lsp 
      :commands company-lsp
      :custom ((company-minimum-prefix-length 1)
 	      (company-idle-delay 0.0))) ;; default is 0.2
-     ;; ivy-user
+
+   ;; ivy-user
    (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-   (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-
-   ;; optionally if you want to use debugger
-   (require 'dap-lldb)
-   (require 'dap-python)
-
-   (use-package dap-mode
+   (use-package lsp-treemacs
      :ensure t
+     :defer t
+     :after lsp)
+
+   ;; debugger
+   (use-package dap-mode 
+     :ensure t
+     :defer t
+     :after lsp-mode lsp-treemacs
      :config
-     (dap-mode 1)
-     (dap-ui-mode 1))
+     (dap-auto-configure-mode))
 
-  (use-package ccls
-   :ensure t
-   :hook ((c-mode c++-mode objc-mode cuda-mode) .
-   (lambda () (require 'ccls) (lsp)))
-       :custom (
-       (ccls-executable "/usr/local/bin/ccls")
-       (ccls-initialization-options
-        '(:clang (:extraArgs ["-isystem/Library/Developer/CommandLineTools/usr/include/c++/v1"
-                              "-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
-                              "-isystem/Library/Developer/CommandLineTools/usr/include"
-                              "-isystem/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include"
-			      "-isystem/usr/local/include"
-			      "-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"]
-                  :resourceDir "/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3")))
-		  ))
-
-   (use-package
-     gcmh
-     :ensure t
-     :config (gcmh-mode 1)
-   )
-
-   (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-   (setq read-process-output-max (* 1024 1024))
-   (setq gcmh-high-cons-threshold 100000000)
-   
-   (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake)
-    
 #+END_SRC
 * Themes
 #+BEGIN_SRC emacs-lisp
-  (use-package color-theme-sanityinc-tomorrow
-     :ensure color-theme-sanityinc-tomorrow
-     :config (load-theme 'sanityinc-tomorrow-eighties)
-  )
+(use-package modus-themes
+  :ensure t
+  :init
+  (setq modus-themes-org-blocks 'greyscale)
+  (setq modus-themes-completions 'opinionated)
+  (setq modus-themes-fringes 'subtle)
+  (setq modus-themes-scale-headings t
+	modus-themes-slanted-constructs t
+	modus-themes-bold-constructs t
+	modus-themes-syntax 'alt-syntax
+	modus-themes-intense-hl-line nil
+	modus-themes-variable-pitch-headings t
+	modus-themes-paren-match 'intense
+	modus-themes-headings 'section)
 
-  (use-package tao-theme
-     :ensure tao-theme
-  )
-#+END_SRC
-* Python Development 
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package flycheck
-  ;;   :ensure t
-  ;;   :init (global-flycheck-mode 1))
-  ;; (use-package elpy
-  ;;   :ensure t
-  ;;   :config 
-  ;;   (elpy-enable))
+  (setq modus-themes-scale-1 1.05
+	modus-themes-scale-2 1.1
+	modus-themes-scale-3 1.15
+	modus-themes-scale-4 1.2
+	modus-themes-scale-5 1.3)
+
+  (setq modus-themes-headings
+	'((1 . section)
+          (2 . section-no-bold)
+          (3 . rainbow-line)
+          (t . rainbow-line-no-bold))))
+
+;; Running modus-themes depending on the time of the day.
+
+(use-package solar
+  :config
+  (setq calendar-latitude 50.72
+        calendar-longitude 17.31))
+
+(use-package circadian
+  :ensure t
+  :after solar
+  :config
+  (setq circadian-themes '((:sunrise . modus-operandi)
+                           (:sunset  . modus-vivendi)))
+  (circadian-setup))
+
 #+END_SRC
 * Clojure Development
 #+BEGIN_SRC emacs-lisp
@@ -249,19 +340,92 @@
 #+END_SRC
 * Cpp Development
 #+BEGIN_SRC emacs-lisp
-(use-package
- clang-format
- :ensure t
- :bind (("C-M-<tab>" . clang-format-buffer))
-)
+  (use-package
+   clang-format
+     :ensure t
+     :bind (("C-M-<tab>" . clang-format-buffer)))
+
+  (use-package ccls
+   :ensure t
+   :hook ((c-mode c++-mode objc-mode cuda-mode) .
+          (lambda () (require 'ccls) (lsp)))
+	    :custom (
+	    (ccls-executable "/usr/local/bin/ccls")
+	    (ccls-initialization-options
+            '(:clang (:extraArgs ["-isystem/Library/Developer/CommandLineTools/usr/include/c++/v1"
+                                  "-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
+                                  "-isystem/Library/Developer/CommandLineTools/usr/include"
+                                  "-isystem/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3/include"
+			          "-isystem/usr/local/include"
+			           "-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"]
+                     :resourceDir "/Library/Developer/CommandLineTools/usr/lib/clang/11.0.3"))))
+   :config
+      (setq-default flycheck-disabled-checkers 
+                    '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+      (remove-hook 'flymake-diagnostic-functions 'flymake-proc-legacy-flymake))
+
 #+END_SRC
-* Go development
-#+BEGIN_SRC emacs-lisp
-  ;; (use-package go-mode
-  ;;   :ensure t
-  ;;   :hook ((before-save-hook . gofmt-before-save))
-  ;;   )
-#+END_SRC
+* Python development
+  #+BEGIN_SRC emacs-lisp 
+ (use-package python
+  :ensure t
+  :config
+  ;; Remove guess indent python message
+  (setq python-indent-guess-indent-offset-verbose nil)
+  ;; Use IPython when available or fall back to regular Python
+  (cond
+   ((executable-find "ipython")
+    (progn
+      (setq python-shell-buffer-name "IPython")
+      (setq python-shell-interpreter "ipython")
+      (setq python-shell-interpreter-args "-i --simple-prompt")))
+   ((executable-find "python3")
+    (setq python-shell-interpreter "python3"))
+   ((executable-find "python2")
+    (setq python-shell-interpreter "python2"))
+   (t
+    (setq python-shell-interpreter "python"))))
+
+;; Hide the modeline for inferior python processes
+(use-package inferior-python-mode
+  :ensure nil
+  :hook ((inferior-python-mode-hook . hide-mode-line-mode)
+	 (inferior-ess-r-mode-hook . hide-mode-line-mode)))
+
+(use-package hide-mode-line
+  :ensure t
+  :defer t)
+
+(use-package pyvenv
+  :ensure t
+  :defer t
+  :config
+  ;; Setting work on to easily switch between environments
+  (setenv "WORKON_HOME" (expand-file-name "~/Library/Caches/pypoetry/virtualenvs"))
+  ;; Display virtual envs in the menu bar
+  (setq pyvenv-menu t)
+  ;; Restart the python process when switching environments
+  (add-hook 'pyvenv-post-activate-hooks (lambda ()
+					  (pyvenv-restart-python)))
+  :hook (python-mode-hook . pyvenv-mode))
+
+(use-package lsp-pyright
+  :ensure t
+  :defer t
+  :defines (lsp-clients-python-library-directories
+	    lsp-pyright-disable-language-service)
+  :config
+  (setq lsp-clients-python-library-directories '("/usr/" "~/.pyenv/versions"))
+  (setq lsp-pyright-disable-language-service nil
+	lsp-pyright-disable-organize-imports nil
+	lsp-pyright-auto-import-completions t
+	lsp-pyright-use-library-code-for-types t
+	lsp-pyright-venv-path "~/Library/Caches/pypoetry/virtualenvs")
+  :hook ((python-mode-hook . (lambda ()
+			       (require 'lsp-pyright) (lsp-deferred)))))
+
+ 
+  #+END_SRC
 * Magit
 #+BEGIN_SRC emacs-lisp
 (use-package magit
@@ -279,18 +443,15 @@
         (exec-path-from-shell-copy-envs '("PATH")))
 )
 #+END_SRC
-* Powerline
+* Modeline
 #+BEGIN_SRC emacs-lisp
-(use-package powerline
-   :ensure t
-   :config (powerline-default-theme))
-#+END_SRC
-* NYAN !!!!
-#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+  
 (use-package nyan-mode
   :ensure t
-  :config (nyan-mode)
-)
+  :config (nyan-mode))
 #+END_SRC
 * Evil mode
  #+BEGIN_SRC emacs-lisp
@@ -303,7 +464,14 @@
 
 (use-package evil-surround
   :ensure t
+  :defer nil
   :config
   (global-evil-surround-mode 1))
+
+(use-package smartparens
+  :ensure t
+  :hook ((python-mode . smartparens-mode)
+         (c++-mode . smartparens-mode))
+)
  #+END_SRC
 
