@@ -213,12 +213,17 @@
             (python-mode-hook . lsp-deferred)
 	    (sql-mode-hook . lsp-deferred)
 	    (c++-mode-hook . lsp-deferred)
+	    (go-mode-hook . lsp-deferred)
+	    (go-mode-hook . lsp-go-install-save-hooks)
 	    (lsp-mode-hook . lsp-enable-which-key-integration))
      :custom (lsp-keymap-prefix "s-l")
      :commands (lsp lsp-deferred)
      :bind (:map lsp-mode-map
                  ("M-<RET>" . lsp-execute-code-action))
      :config 
+     (defun lsp-go-install-save-hooks ()
+     (add-hook 'before-save-hook #'lsp-format-buffer t t)
+     (add-hook 'before-save-hook #'lsp-organize-imports t t))
      (setq lsp-keep-workspace-alive nil
            lsp-auto-guess-root t)
      (setq lsp-sqls-server "~/go/bin/sqls"))
@@ -255,6 +260,13 @@
      (dap-auto-configure-mode))
 
 #+END_SRC
+* Go development
+  #+begin_src emacs-lisp
+  (use-package go-mode
+     :ensure t
+     :mode ("\\.go\\'" . go-mode))
+  #+end_src
+
 * Themes
 #+BEGIN_SRC emacs-lisp
 (use-package modus-themes
@@ -564,7 +576,7 @@
   (setq emmet-move-cursor-between-quotes t)
   ;; Auto-start on any markup modes
   :hook ((sgml-mode-hook . emmet-mode)
-	 (web-mode-hook . emmet-mode))
+         (web-mode-hook . emmet-mode)))
   #+end_src
 
 * Magit
@@ -612,3 +624,19 @@
   :defer t
   :mode ("\\.yml\\'"))
 #+END_SRC
+
+ 
+* Markdown
+  #+begin_src emacs-lisp
+  (use-package markdown-mode
+  :ensure t
+  :defer t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :config
+  (setq markdown-fontify-code-blocks-natively t)
+  :init (setq markdown-command "pandoc"))
+
+  #+end_src
