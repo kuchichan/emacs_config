@@ -123,7 +123,8 @@
   :ensure t
   :defer t
   :config
-  (setq treemacs-width 24)
+  (setq treemacs-no-png-images t
+        treemacs-width 24)
   :bind ("C-c t" . treemacs))
 
 (use-package projectile
@@ -197,7 +198,8 @@
      :config 
      (setq gcmh-mode 1
            gcmh-idle-delay 5
-	   gcmh-high-cons-threshold (* 16 1024 1024)))
+	   gcmh-high-cons-threshold (* 16 1024 1024))
+	   read-process-output-max (* 1024 1024))
 #+END_SRC
  
 * Language server
@@ -205,9 +207,11 @@
    (use-package lsp-mode
      :ensure t
      :defer t
+     :defines (lsp-sqls-server)
      :init (setq lsp-keymap-prefix "C-c l")
      :hook ((js2-mode-hook . lsp-deferred)
             (python-mode-hook . lsp-deferred)
+	    (sql-mode-hook . lsp-deferred)
 	    (c++-mode-hook . lsp-deferred)
 	    (lsp-mode-hook . lsp-enable-which-key-integration))
      :custom (lsp-keymap-prefix "s-l")
@@ -217,7 +221,8 @@
      :config 
      (setq lsp-keep-workspace-alive nil
            lsp-auto-guess-root t)
-     (setq read-process-output-max (* 1024 1024)))
+     (setq lsp-sqls-server "~/go/bin/sqls"))
+
 
    (use-package lsp-ui
      :ensure t
