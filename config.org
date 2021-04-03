@@ -108,6 +108,22 @@
   :defer t
   :after yasnippet)
 #+END_SRC
+* Org Roam
+  #+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :hook
+    (after-init-hook . org-roam-mode)
+    :custom
+    (org-roam-directory (expand-file-name "~/org-roam"))
+    (org-roam-dailies-directory "daily/")
+    (org-roam-dailies-capture-templates
+      '(("d" "default" entry
+         #'org-roam-capture--get-point
+         "* %?"
+         :file-name "daily/%<%Y-%m-%d>"
+         :head "#+title: %<%Y-%m-%d>\n\n"))))
+  #+end_src
 * Flycheck + Spellcheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
@@ -125,7 +141,8 @@
   :config
   (setq treemacs-no-png-images t
         treemacs-width 24)
-  :bind ("C-c t" . treemacs))
+  :bind ("C-c t" . treemacs)
+        ("C-x t t" . treemacs-select-window))
 
 (use-package projectile
   :ensure t
@@ -603,6 +620,10 @@
 (require 'evil)
 (evil-mode 1)
 
+(use-package treemacs-evil
+  :after (treemacs evil)
+  :ensure t)
+
 (use-package evil-surround
   :ensure t
   :defer nil
@@ -625,7 +646,6 @@
   :mode ("\\.yml\\'"))
 #+END_SRC
 
- 
 * Markdown
   #+begin_src emacs-lisp
   (use-package markdown-mode
