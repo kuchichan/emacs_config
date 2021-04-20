@@ -122,6 +122,36 @@
 #+END_SRC
 * Flycheck + Spellcheck
 #+BEGIN_SRC emacs-lisp
+  ;; needs aspell
+  (use-package flyspell
+    :ensure t
+    :defer t
+    :hook ((text-mode-hook . flyspell-mode)
+          (prog-mode-hook . flyspell-prog-mode))
+
+    :config
+    (setq flyspell-issue-message-flag nil)
+    (setq flyspell-issue-welcome-flag nil)
+    (setq ispell-program-name "aspell")
+    (setq ispell-dictionary "en_US")
+
+    (defvar nf/ispell-dicts
+    '(("English" . "en_US")
+      ("Polski" . "pl"))
+    "Alist of languages dictionaries")
+
+    (defun nf/ispell-dictionaries-complete ()
+      "Select an item from `nf/ispell-dicts'."
+      (interactive)
+      (let* ((dicts (mapcar #'car nf/ispell-dicts))
+             (choice (completing-read "Select dictionary: " dicts nil t))
+             (key (cdr (assoc `,choice nf/ispell-dicts))))
+        (ispell-change-dictionary key)
+        (message "Switched to %s" key)))
+
+    :bind ("C-x C-;" . nf/ispell-dictionaries-complete))
+
+
   (use-package flycheck
     :ensure t
     :defer t
