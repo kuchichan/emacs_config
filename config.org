@@ -149,7 +149,7 @@
         (ispell-change-dictionary key)
         (message "Switched to %s" key)))
 
-    :bind ("C-x C-;" . nf/ispell-dictionaries-complete))
+    :bind ("C-x C-+" . nf/ispell-dictionaries-complete))
 
 
   (use-package flycheck
