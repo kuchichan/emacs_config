@@ -149,8 +149,8 @@
         (ispell-change-dictionary key)
         (message "Switched to %s" key)))
 
-    :bind ("C-c C-!" . nf/ispell-dictionaries-complete))
 
+    :bind ("C-x C-+" . nf/ispell-dictionaries-complete))
 
   (use-package flycheck
     :ensure t
@@ -294,6 +294,9 @@
 	   (sql-mode-hook . lsp-deferred)
 	   (c++-mode-hook . lsp-deferred)
 	   (go-mode-hook . lsp-deferred)
+	   (clojure-mode-hook . lsp-deferred)
+	   (clojurescript-mode-hook . lsp-deferred)
+	   (clojurec-mode-hook . lsp-deferred)
 	   (go-mode-hook . lsp-go-install-save-hooks)
 	   (lsp-mode-hook . lsp-enable-which-key-integration))
     :custom (lsp-keymap-prefix "s-l")
@@ -306,7 +309,10 @@
       (add-hook 'before-save-hook #'lsp-organize-imports t t))
     (setq lsp-keep-workspace-alive nil
 	  lsp-auto-guess-root t)
-    (setq lsp-sqls-server "~/go/bin/sqls"))
+    (setq lsp-sqls-server "~/go/bin/sqls")
+    (setenv "PATH" (concat
+                   "/usr/local/bin" path-separator
+                   (getenv "PATH"))))
 
 
    (use-package lsp-ui
@@ -349,6 +355,7 @@
 		 (executable-find command)))))
 
 #+END_SRC
+
 * Go development
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
@@ -404,16 +411,18 @@
 #+BEGIN_SRC emacs-lisp
   ;; Based on "Clojure for brave and true" book, but with use-package isolation
   (use-package paredit
+    :defer t
     :ensure t)
 
   (use-package clojure-mode
     :ensure t
+    :defer t
     :hook
     (
-     (clojure-mode . enable-paredit-mode)
+     (clojure-mode-hook . enable-paredit-mode)
      ;; paredit for clojure
-     (clojure-mode . subword-mode)
-     (clojure-mode . (lambda ()
+     (clojure-mode-hook . subword-mode)
+     (clojure-mode-hook . (lambda ()
 		       (setq inferior-lisp-program "lein repl")
 		       (font-lock-add-keywords
 			nil
@@ -426,19 +435,17 @@
 		       (rainbow-delimiters-mode)))))
 
 
-  (use-package clojure-mode-extra-font-locking
-    :ensure)
-
   (use-package rainbow-delimiters
-    :ensure t)
+    :ensure t
+    :defer t)
 
   (use-package cider
     :ensure t
+    :defer t
     :hook
-    (cider-repl-mode . paredit-mode)
+    (cider-repl-mode-hook . paredit-mode)
     :config
     (progn
-      (add-hook 'cider-mode-hook 'eldoc-mode)
       ;;proivdes minibuffer docs
       (setq cider-repl-pop-to-buffer-on-connect t)
       ;; go right to the repl when finished connecting
@@ -721,8 +728,13 @@
     :ensure t
     :defer t
     :hook ((python-mode-hook . smartparens-mode)
-	   (c++-mode-hook . smartparens-mode))
-  )
+	   (c++-mode-hook . smartparens-mode)))
+
+  (use-package evil-commentary
+    :ensure t
+    :defer nil
+    :config
+    (evil-commentary-mode))
 #+END_SRC
 * Yaml
 #+BEGIN_SRC emacs-lisp
