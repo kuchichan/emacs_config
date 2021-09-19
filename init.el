@@ -26,7 +26,7 @@
    '("6145e62774a589c074a31a05dfa5efdf8789cf869104e905956f0cbd7eda9d0e" "760ce657e710a77bcf6df51d97e51aae2ee7db1fba21bbad07aab0fa0f42f834" "37768a79b479684b0756dec7c0fc7652082910c37d8863c35b702db3f16000f8" "628278136f88aa1a151bb2d6c8a86bf2b7631fbea5f0f76cba2a0079cd910f7d" default))
  '(fill-column 90)
  '(package-selected-packages
-   '(powerline with-editor treemacs-evil web-mode json-mode js2-refactor tide prettier-js rjsx-mode company smartparens evil-surround evil nyan-mode doom-modeline exec-path-from-shell magit lsp-pyright pyvenv hide-mode-line ccls clang-format cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit nord-theme tao-theme color-theme-sanityinc-tomorrow dap-mode lsp-treemacs lsp-ui lsp-mode gcmh which-key counsel org-bullets treemacs-projectile projectile treemacs try use-package))
+   '(slime silme powerline with-editor treemacs-evil web-mode json-mode js2-refactor tide prettier-js rjsx-mode company smartparens evil-surround evil nyan-mode doom-modeline exec-path-from-shell magit lsp-pyright pyvenv hide-mode-line ccls clang-format cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit nord-theme tao-theme color-theme-sanityinc-tomorrow dap-mode lsp-treemacs lsp-ui lsp-mode gcmh which-key counsel org-bullets treemacs-projectile projectile treemacs try use-package))
  '(projectile-mode t nil (projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

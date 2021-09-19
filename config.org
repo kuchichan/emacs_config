@@ -273,6 +273,7 @@
 #+END_SRC
 * Performance
 #+BEGIN_SRC emacs-lisp
+  (setq read-process-output-max (* 1024 1024))
   (use-package gcmh
     :ensure t
     :defer nil
@@ -289,11 +290,13 @@
     :defer t
     :defines (lsp-sqls-server)
     :init (setq lsp-keymap-prefix "C-c l")
+	  (add-to-list 'exec-path "~/elixir-ls-1.11")
     :hook ((js2-mode-hook . lsp-deferred)
 	   (python-mode-hook . lsp-deferred)
 	   (sql-mode-hook . lsp-deferred)
 	   (c++-mode-hook . lsp-deferred)
 	   (go-mode-hook . lsp-deferred)
+	   (elixir-mode-hook . lsp-deferred)
 	   (clojure-mode-hook . lsp-deferred)
 	   (clojurescript-mode-hook . lsp-deferred)
 	   (clojurec-mode-hook . lsp-deferred)
@@ -311,8 +314,8 @@
 	  lsp-auto-guess-root t)
     (setq lsp-sqls-server "~/go/bin/sqls")
     (setenv "PATH" (concat
-                   "/usr/local/bin" path-separator
-                   (getenv "PATH"))))
+		    "/usr/local/bin" path-separator
+		    (getenv "PATH"))))
 
 
    (use-package lsp-ui
@@ -359,8 +362,9 @@
 * Go development
 #+BEGIN_SRC emacs-lisp
   (use-package go-mode
-     :ensure t
-     :mode ("\\.go\\'" . go-mode))
+    :ensure t
+    :config (setq-default tab-width 4)
+    :mode ("\\.go\\'" . go-mode))
 #+END_SRC
 * Themes
 #+BEGIN_SRC emacs-lisp
@@ -487,6 +491,13 @@
        (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
        (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
 #+END_SRC
+* Elixir mode
+#+BEGIN_SRC emacs-lisp
+(use-package elixir-mode
+  :ensure t
+  :bind (:map elixir-mode-map
+          ("C-c C-f" . elixir-format)))
+#+END_SRC
 * Cpp Development
 #+BEGIN_SRC emacs-lisp
   (use-package
@@ -519,10 +530,10 @@
 * Python development
 #+BEGIN_SRC emacs-lisp 
   (use-package python
-    :ensure t
-    :config
-    ;; Remove guess indent python message
-    (setq python-indent-guess-indent-offset-verbose nil)
+     :ensure t
+     :config
+     ;; Remove guess indent python message
+     (setq python-indent-guess-indent-offset-verbose nil)
     ;; Use IPython when available or fall back to regular Python
     (when (executable-find "ipython")
       (setq python-shell-interpreter "ipython")
@@ -537,11 +548,11 @@
   (use-package hide-mode-line
     :ensure t
     :defer t)
-  
+
   (use-package python-black
     :ensure t
     :defer t)
-  
+
   (use-package pytest
     :ensure t
     :defer t)
@@ -556,39 +567,43 @@
     (setq pyvenv-menu t)
     ;; Restart the python process when switching environments
     (add-hook 'pyvenv-post-activate-hooks (lambda ()
-					    (pyvenv-restart-python)))
+					   (pyvenv-restart-python)))
     :hook (python-mode-hook . pyvenv-mode))
 
   (use-package lsp-pyright
     :ensure t
     :defer t
+    :init
+    (setq lsp-pyright-multi-root nil)
     :config
     (setq lsp-pyright-disable-organize-imports nil
 	  lsp-pyright-auto-import-completions t
 	  lsp-pyright-use-library-code-for-types t)
+
     :hook ((python-mode-hook . (lambda ()
 				 (require 'lsp-pyright)
 				 (lsp-deferred)))))
 
-   (add-hook 'lsp-mode-hook
+   (advice-add 'lsp :before (lambda (&rest _args) (eval '(setf (lsp-session-server-id->folders (lsp-session)) (ht)))))
+   (add-hook 'lsp-pyright-hook
    (lambda ()
    (if (file-exists-p (concat (lsp--workspace-root (cl-first (lsp-workspaces)))
-			     "/pyrightconfig.json"))
-      (progn
-	(setq lsp-enable-file-watchers t)
-	(setq lsp-file-watch-ignored-directories (eval (car (get 'lsp-file-watch-ignored-directories 'standard-value))))
-	(require 'json)
-	(let* ((json-object-type 'hash-table)
-	       (json-array-type 'list)
-	       (json-key-type 'string)
-	       (json (json-read-file (concat (lsp--workspace-root (cl-first (lsp-workspaces)))
-					     "/pyrightconfig.json")))
-	       (exclude (gethash "exclude" json)))
-	  (dolist (exclud exclude)
-	    (push exclud lsp-file-watch-ignored))))
-    (setq lsp-enable-file-watchers 'nil)
-    (setq lsp-file-watch-ignored-directories (eval (car (get 'lsp-file-watch-ignored-directories 'standard-value)))))
-  ))
+			       "/pyrightconfig.json"))
+        (progn
+	  (setq lsp-enable-file-watchers t)
+	  (setq lsp-file-watch-ignored-directories (eval (car (get 'lsp-file-watch-ignored-directories 'standard-value))))
+	  (require 'json)
+	  (let* ((json-object-type 'hash-table)
+		 (json-array-type 'list)
+		 (json-key-type 'string)
+		 (json (json-read-file (concat (lsp--workspace-root (cl-first (lsp-workspaces)))
+					       "/pyrightconfig.json")))
+		 (exclude (gethash "exclude" json)))
+	    (dolist (exclud exclude)
+	      (push exclud lsp-file-watch-ignored))))
+      (setq lsp-enable-file-watchers 'nil)
+      (setq lsp-file-watch-ignored-directories (eval (car (get 'lsp-file-watch-ignored-directories 'standard-value)))))
+    ))
 #+END_SRC
 * Web development
   LSP requirements on the server
@@ -693,6 +708,16 @@
     :hook ((sgml-mode-hook . emmet-mode)
 	   (web-mode-hook . emmet-mode)))
 #+END_SRC
+* Lisp Development
+#+begin_src emacs-lisp 
+  (use-package slime
+       :ensure t
+       :defer t
+       :config
+       (setq inferior-lisp-program "/usr/local/bin/sbcl")
+       :hook (lisp-mode-hook . slime))
+#+end_src
+
 * Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
