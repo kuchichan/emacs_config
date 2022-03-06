@@ -195,7 +195,7 @@
     '((sequence "TODO" "IN PROGRESS" "|" "DONE")))
     (setq org-log-done 'time)
 #+END_SRC
-*  Agenda
+* Agenda
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-files '("~/org-roam/beorg"))
 
@@ -401,8 +401,8 @@
     :ensure t
     :after solar
     :config
-    (setq circadian-themes '((:sunrise . kaolin-light)
-			     (:sunset  . kaolin-aurora)))
+    (setq circadian-themes '((:sunrise . kaolin-blossom)
+			     (:sunset  . kaolin-galaxy)))
     (circadian-setup))
 
 #+END_SRC
@@ -744,6 +744,7 @@
   ;; Enable Evil
   (require 'evil)
   (evil-mode 1)
+  (evil-set-initial-state 'vterm-mode 'emacs)
 
   (use-package treemacs-evil
     :after (treemacs evil)
