@@ -817,6 +817,13 @@
     :defer nil
     :config
     (evil-commentary-mode))
+
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
+
+
 #+END_SRC
 * Hydra
 #+BEGIN_SRC emacs-lisp
