@@ -89,6 +89,7 @@
   ;; Disable line numbers for some modes
   (dolist (mode '(org-mode-hook
 		  term-mode-hook
+		  vterm-mode-hook
 		  shell-mode-hook
 		  eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -790,7 +791,7 @@
     (dolist (mode '(eshell-mode
 		    term-mode
 		    vterm-mode))
-      (add-to-list 'evil-emacs-state-modes mode)))
+      (evil-set-initial-state mode 'emacs)))
 
 
   (use-package evil
@@ -799,7 +800,7 @@
     (setq evil-want-keybinding nil)
     (setq evil-want-C-u-scroll t)
     (setq evil-want-C-i-jump nil)
-    :hook (evil-mode-hook . kuchi/evil-not-in-shells)
+    :hook (vterm-mode-hook . evil-emacs-state)
     :config
     (evil-mode 1)
     (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
@@ -808,7 +809,7 @@
     ;; Use visual line motions even outside of visual-line-mode buffers
     (evil-global-set-key 'motion "j" 'evil-next-visual-line)
     (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-
+    (kuchi/evil-not-in-shells)
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
 
