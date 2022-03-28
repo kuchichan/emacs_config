@@ -2,7 +2,8 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives
-'("melpa" . "https://melpa.org/packages/"))
+	     '("melpa" . "https://melpa.org/packages/")
+	     '("org" . "https://orgmode.org/elpa/"))
 
 ;; (setq package-check-signature nil)
 ;; (setq package-archives
@@ -28,7 +29,7 @@
  '(org-modules
    '(org-habit ol-w3m ol-bbdb ol-bibtex ol-docview ol-gnus ol-info ol-irc ol-mhe ol-rmail ol-eww))
  '(package-selected-packages
-   '(kaolin-themes rust-mode slime silme powerline with-editor treemacs-evil web-mode json-mode js2-refactor tide prettier-js rjsx-mode company smartparens evil-surround evil nyan-mode doom-modeline exec-path-from-shell magit lsp-pyright pyvenv hide-mode-line ccls clang-format cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit nord-theme tao-theme color-theme-sanityinc-tomorrow dap-mode lsp-treemacs lsp-ui lsp-mode gcmh which-key counsel org-bullets treemacs-projectile projectile treemacs try use-package))
+   '(visual-fill-column evil-magit counsel-projectile kaolin-themes rust-mode slime silme powerline with-editor treemacs-evil web-mode json-mode js2-refactor tide prettier-js rjsx-mode company smartparens evil-surround evil nyan-mode doom-modeline exec-path-from-shell magit lsp-pyright pyvenv hide-mode-line ccls clang-format cider rainbow-delimiters clojure-mode-extra-font-locking clojure-mode paredit nord-theme tao-theme color-theme-sanityinc-tomorrow dap-mode lsp-treemacs lsp-ui lsp-mode gcmh which-key counsel org-bullets treemacs-projectile projectile treemacs try use-package))
  '(projectile-mode t nil (projectile)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
