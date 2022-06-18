@@ -21,6 +21,8 @@
     (setq use-package-expand-minimally nil)
     (setq use-package-enable-imenu-support t)
     (setq use-package-compute-statistics nil)
+    (setq backup-directory-alist `((".*" . ,temporary-file-directory))
+          auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
     ;; The following is VERY IMPORTANT.  Write hooks using their real name
     ;; instead of a shorter version: after-init ==> `after-init-hook'.
     ;;
@@ -62,7 +64,9 @@
 
 	  ;; No company-mode in shell & eshell
 	  company-global-modes '(not eshell-mode shell-mode))
+    (setq lsp-completion-provider :capf)
     :hook ((text-mode-hook . company-mode)
+           (scala-mode-hook . company-mode)
 	   (prog-mode-hook . company-mode)))
 
 #+END_SRC
@@ -495,13 +499,12 @@
 	  (add-to-list 'exec-path "~/elixir-ls-1.11")
     :hook ((js2-mode-hook . lsp-deferred)
 	   (python-mode-hook . lsp-deferred)
+          (scala-mode-hook . lsp-deferred)  
 	   (sql-mode-hook . lsp-deferred)
 	   (c++-mode-hook . lsp-deferred)
-	   (elixir-mode-hook . lsp-deferred)
 	   (clojure-mode-hook . lsp-deferred)
 	   (clojurescript-mode-hook . lsp-deferred)
 	   (clojurec-mode-hook . lsp-deferred)
-	   (go-mode-hook . lsp-go-install-save-hooks)
 	   (lsp-mode-hook . lsp-enable-which-key-integration))
     :custom (lsp-keymap-prefix "s-l")
     :commands (lsp lsp-deferred)
@@ -661,13 +664,30 @@
        (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
        (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
 #+END_SRC
-* Elixir mode
-#+BEGIN_SRC emacs-lisp
-(use-package elixir-mode
-  :ensure t
-  :bind (:map elixir-mode-map
-          ("C-c C-f" . elixir-format)))
-#+END_SRC
+* Scala Development
+#+begin_src emacs-lisp
+        (use-package scala-mode
+          :ensure t
+          :interpreter
+             ("scala" . scala-mode))
+
+        (use-package sbt-mode
+          :ensure t
+          :commands sbt-start sbt-command
+          :config
+          ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+          ;; allows using SPACE when in the minibuffer
+          (substitute-key-definition
+           'minibuffer-complete-word
+           'self-insert-command
+           minibuffer-local-completion-map)
+           ;; sbt-supershell kills sbt-mode:  https://github.com/hvesalai/emacs-sbt-mode/issues/152
+           (setq sbt:program-options '("-Dsbt.supershell=false"))
+        )
+        (use-package lsp-metals
+         :ensure t)
+#+end_src
+
 * Cpp Development
 #+BEGIN_SRC emacs-lisp
   (use-package
@@ -890,15 +910,6 @@
        (lisp-mode-hook . rainbow-delimiters-mode))
 #+end_src
 
-* Rust development
-#+begin_src emacs-lisp 
-  (use-package rust-mode
-    :ensure t
-    :hook (rust-mode-hook . (lambda ()
-			      (setq indent-tabs-mode nil)))
-  )
-#+end_src
-
 * Magit
 #+BEGIN_SRC emacs-lisp
   (use-package magit
@@ -1015,4 +1026,16 @@
   (setq markdown-fontify-code-blocks-natively t)
   :init (setq markdown-command "pandoc"))
 
+#+END_SRC
+*  Docker
+#+BEGIN_SRC emacs-lisp
+  (use-package dockerfile-mode
+  :ensure t
+  :defer t
+  :mode ("Dockerfile\\'" . dockerfile-mode))
+#+END_SRC
+*  Docker
+#+BEGIN_SRC emacs-lisp
+  (use-package terraform-mode
+  :ensure t)
 #+END_SRC
