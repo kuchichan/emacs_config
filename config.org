@@ -950,6 +950,7 @@
   (use-package smartparens
     :ensure t
     :defer t
+    :init (require 'smartparens-config)
     :hook ((python-mode-hook . smartparens-mode)
            (c++-mode-hook . smartparens-mode)
            (elixir-mode-hook . smartparens-mode)))
